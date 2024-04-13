@@ -8,48 +8,45 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createIssueSchema } from "@/app/validationSchemas";
-import {z} from "zod";
+import { z } from "zod";
 import ErrorMessage from "@/app/components/ErrorMessage";
 import Spinner from "@/app/components/Spinner";
 
 type IssueForm = z.infer<typeof createIssueSchema>;
 
-
 const newIssuesPage = () => {
   const [error, setError] = useState("");
-  const [submited , setSubmited] = useState(false)
-  const { register, control, handleSubmit , formState : {errors}} = useForm<IssueForm>({
-    resolver : zodResolver(createIssueSchema)
+  const [submited, setSubmited] = useState(false);
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IssueForm>({
+    resolver: zodResolver(createIssueSchema),
   });
   const router = useRouter();
   const onSubmit = handleSubmit(async (data) => {
     try {
-      setSubmited(true)
+      setSubmited(true);
       await axios.post("/api/issues", data);
       router.push("/issues");
     } catch (error) {
-      setSubmited(false)
+      setSubmited(false);
       console.log("error", error);
       setError("An unexpected error occurred");
     }
-  })
-
+  });
 
   return (
     <div className="max-w-xl">
-      {
-        error && <Callout.Root color="red" className="mb-5">
-        <Callout.Icon>
-        </Callout.Icon>
-        <Callout.Text>
-          {error}
-        </Callout.Text>
-      </Callout.Root>
-      }
-      <form
-        className=" space-y-3"
-        onSubmit={onSubmit}
-      >
+      {error && (
+        <Callout.Root color="red" className="mb-5">
+          <Callout.Icon></Callout.Icon>
+          <Callout.Text>{error}</Callout.Text>
+        </Callout.Root>
+      )}
+      <form className=" space-y-3" onSubmit={onSubmit}>
         <TextField.Root>
           <TextField.Input placeholder="Title" {...register("title")} />
         </TextField.Root>
@@ -61,11 +58,13 @@ const newIssuesPage = () => {
             <SimpleMDE placeholder="Description..." {...field} />
           )}
         />
-        {errors.description && <ErrorMessage>{errors.description.message}</ErrorMessage>}
-        
+        {errors.description && (
+          <ErrorMessage>{errors.description.message}</ErrorMessage>
+        )}
 
-        <Button disabled={submited}>Submit New Issue
-          {submited && <Spinner/>}
+        <Button disabled={submited}>
+          Submit New Issue
+          {submited && <Spinner />}
         </Button>
       </form>
     </div>
